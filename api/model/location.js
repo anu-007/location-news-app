@@ -1,15 +1,22 @@
 'use strict';
 const mongoose = require('mongoose');
+const Schema = mongoose.Schema;
 
-var LocationSchema = mongoose.Schema({
-    name: String,
+const LocationSchema = mongoose.Schema({
+    _id: Schema.Types.ObjectId,
     address: {
         type: String,
-        required: 'Kindly enter the name of the location'
+        description: 'the name of the location'
     },
     location: {
-        lat: Number,
-        lang: Number
+        lat: {
+            type: Number,
+            required: true
+        },
+        lang: {
+            type: Number,
+            required: true
+        }
     }
 });
 
