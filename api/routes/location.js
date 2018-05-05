@@ -17,40 +17,54 @@ router.get('/', (req, res)=>{
 });
 
 router.get('/:location', (req,res)=> {
-    let query = req.params.location;
+    let query = req.params.location.toLowerCase();
 
-    geo.find(query, function(err, response){
-        const location = new Location({
-            name: query,
-            address: response[0].formatted_address,
-            location: {
-                lat : response[0].location.lat,
-                lang : response[0].location.lang
-            }
-        });
-    });
-
-    newsapi.v2.topHeadlines({
-        country: 'us'
-    }).then(response => {
+    Location.findOne({name: query}, 'address location', function(err, loc) {
+        if(loc)
+            res.send(loc);
+        else {
+            geo.find(query, function(err, response){
+                const location = new Location({
+                    address: response[0].formatted_address,
+                    name: query,
+                    location: {
+                        lat : response[0].location.lat,
+                        lng : response[0].location.lng
+                    }
+                });
         
-        const news = new News({
-            name: query,
-            article: []
-        });
-
-        response.articles.forEach( (item)=> {
-            news.articles.push({
-                source: item.source.name,
-                author: item.author,
-                title: item.title,
-                description: item.description,
-                url: item.url,
-                urlToImage: item.urlToImage,
-                publishedAt: item.publishedAt
+                location.save().then(result=> {
+                    //console.log(result);
+                })
+                .catch(error => console.log(error));
+        
+        
+                newsapi.v2.topHeadlines({
+                    country: response[0].country.short_name.toLowerCase()
+                }).then(response => {
+                    const news = new News({
+                        article: []
+                    });
+                    response.articles.forEach( (item)=> {
+                        news.articles.push({
+                            source: item.source.name,
+                            author: item.author,
+                            title: item.title,
+                            description: item.description,
+                            url: item.url,
+                            urlToImage: item.urlToImage,
+                            publishedAt: item.publishedAt
+                        });
+                    });
+            
+                    news.save().then(result=> {
+                        //console.log(result);
+                    })
+                    .catch(error => console.log(error));
+                });
             });
-        });
-    });
+        }
+    })
 
 });
 

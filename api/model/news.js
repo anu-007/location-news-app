@@ -3,19 +3,16 @@ const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
 const NewsSchema = mongoose.Schema({
-    location_id: Schema.Types.ObjectId,
+    location_id: {
+        type: Schema.Types.ObjectId,
+        ref: 'Locations'
+    },
     articles: [
         {
             source: String,
             author: String,
-            title: {
-                type: String,
-                required: true
-            },
-            description: {
-                type: String,
-                required: true
-            },
+            title: String,
+            description: String,
             url: String,
             urlToImage: String,
             publishedAt: {
