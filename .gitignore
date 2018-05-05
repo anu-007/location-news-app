@@ -1,5 +1,6 @@
 # Dependency directories
 node_modules/
+nodemon.json
 
 *.DS_Store
 .AppleDouble
