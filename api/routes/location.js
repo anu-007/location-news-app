@@ -1,7 +1,9 @@
 const express = require('express');
-const Product = require('../model/location');
 const NewsAPI = require('newsapi');
 const geocoder = require('google-geocoder');
+
+const Location = require('../model/location');
+const News = require('../model/news');
 
 const router = express.Router();
 
@@ -17,18 +19,39 @@ router.get('/', (req, res)=>{
 router.get('/:location', (req,res)=> {
     let query = req.params.location;
 
-    //if data does not found
-
-
-    geo.find(query, function(err, res){ 
-        const Location = new Location({
-            address: res[0].formatted_address,
+    geo.find(query, function(err, response){
+        const location = new Location({
+            name: query,
+            address: response[0].formatted_address,
             location: {
-                lat: res[0].location.lat,
-                lang: res[0].location.lang
+                lat : response[0].location.lat,
+                lang : response[0].location.lang
             }
         });
     });
+
+    newsapi.v2.topHeadlines({
+        country: 'us'
+    }).then(response => {
+        
+        const news = new News({
+            name: query,
+            article: []
+        });
+
+        response.articles.forEach( (item)=> {
+            news.articles.push({
+                source: item.source.name,
+                author: item.author,
+                title: item.title,
+                description: item.description,
+                url: item.url,
+                urlToImage: item.urlToImage,
+                publishedAt: item.publishedAt
+            });
+        });
+    });
+
 });
 
 module.exports = router;
