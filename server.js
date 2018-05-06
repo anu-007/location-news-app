@@ -38,6 +38,8 @@ app.use((error, req, res, next)=> {
     });
 });
 
-app.listen(4000, () => {
-    console.log('We are live on ' + 4000);
+var port = process.env.port || 4000;
+
+app.listen(port, () => {
+    console.log('We are live on ' + port);
 });
